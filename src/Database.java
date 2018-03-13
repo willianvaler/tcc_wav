@@ -1,3 +1,5 @@
+package src;
+
 /*
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
@@ -24,7 +26,15 @@ public class Database
         {
             Properties prop = new Properties();
 
-            prop.load(new FileInputStream( "DB.properties" ) );
+            if ( getClass().getResourceAsStream( "DB.properties" )  != null )
+            {
+                prop.load( getClass().getResourceAsStream( "DB.properties" ) );
+            }
+            
+            else
+            {
+                prop.load( new FileInputStream( "C:\\Users\\wav\\Desktop\\tcc_wav\\work\\DB.properties" ) );
+            }
 
             String dbUrl = prop.getProperty( "db.url" );
             String dbUser = prop.getProperty( "db.user" );

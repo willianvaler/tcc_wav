@@ -1,15 +1,11 @@
+package src;
 
-
-import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.*;
 import java.io.File;
-import java.io.IOException;
 import java.nio.file.Files;
-import java.sql.Date;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import org.apache.commons.collections4.IteratorUtils;
 /**
@@ -18,6 +14,11 @@ import org.apache.commons.collections4.IteratorUtils;
  */
 public class LogReader
 {
+    public LogReader( String path )
+    {
+        readXls( path );
+    }
+    
     /*
         read excel
     https://www.callicoder.com/java-read-excel-file-apache-poi/
@@ -30,7 +31,7 @@ public class LogReader
      * 
      * @param folder File
      */
-    public static void readLogFromFolder( File folder )
+    public void readLogFromFolder( File folder )
     {
         if ( folder.isDirectory() )
         {
@@ -53,7 +54,7 @@ public class LogReader
      * 
      * @param f File
      */
-    public static void readLogFile( File f )
+    public void readLogFile( File f )
     {
         try
         {
@@ -79,7 +80,7 @@ public class LogReader
      * 
      * @param lines List&lt;String&gt;
      */
-    private static void processLines( List<String> lines )
+    private void processLines( List<String> lines )
     {
         for ( String line : lines )
         {
@@ -91,12 +92,22 @@ public class LogReader
      * 
      * @param path 
      */
-    private static void readXls( String path )
+    private void readXls( String path )
     {
         try
         {
             // Creating a Workbook from an Excel file (.xls or .xlsx)
-            Workbook workbook = WorkbookFactory.create( new File( path ));
+            Workbook workbook = null;
+            
+            if ( getClass().getResource( path ) != null )
+            {
+                workbook = WorkbookFactory.create( new File( getClass().getResource( path ).getPath() ) );
+            }
+            
+            else
+            {
+                workbook = WorkbookFactory.create( new File( "C:\\Users\\wav\\Desktop\\tcc_wav\\work\\log.xlsx" ) );
+            }
 
             // Retrieving the number of sheets in the Workbook
             System.out.println("Workbook has " + workbook.getNumberOfSheets() + " Sheets : ");
@@ -125,14 +136,15 @@ public class LogReader
             // Create a DataFormatter to format and get each cell's value as String
             DataFormatter dataFormatter = new DataFormatter();
             final SimpleDateFormat dateFormat = new SimpleDateFormat( "dd/MM/yyyy hh:mm" );
+            
             sheet.forEach( row -> {
                 List<Cell>  cells = IteratorUtils.toList( row.cellIterator());
 
-                if ( cells.get( 0 ).getStringCellValue().contains( "/" ) ) //gambiarra pra pular a primeira linha
+                if ( cells.get( 0 ).toString().contains( "/" ) ) //workaround to skip the first line
                 {
                     try 
                     {
-                        Timestamp time = new Timestamp( dateFormat.parse( cells.get(0).getStringCellValue() ).getTime() );
+                        Timestamp time = new Timestamp( dateFormat.parse( cells.get(0).toString() ).getTime() );
                         String name = dataFormatter.formatCellValue( cells.get(1) );
                         String user = dataFormatter.formatCellValue( cells.get(2) );
                         String context =dataFormatter.formatCellValue( cells.get(3) );
@@ -181,7 +193,8 @@ public class LogReader
     
     public static void main( String[] args )
     {
-        readXls( "/home/willian/Downloads/logs_20171011-1701_jeferson.xlsx" );
+        new LogReader( "log.xlsx" );
+//        readXls( "C:\\Users\\wav\\Desktop\\tcc_wav\\work\\log.xlsx" );
 //        readLogFile( new File( "C:\\Users\\wav\\Desktop\\logs_20171011-1701_jeferson.csv" ) );
     }
 
@@ -338,7 +351,15 @@ public class LogReader
         public void setIP(String IP) {
             this.IP = IP;
         }
-        
-        
+
+        @Override
+        public String toString()
+        {
+            String s = "date= " + date + "; Name= " + name + "; user= " + user + "; context= " + context 
+                    + "; component= " + component + "; eventName= " + eventName + "; description= " + description 
+                    + "; origin= " + origin + "; IP=" + IP ;
+            
+            return s;
+        }
     }
 }

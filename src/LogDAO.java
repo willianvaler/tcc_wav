@@ -1,5 +1,6 @@
+package src;
 
-import java.sql.Statement;
+import java.sql.PreparedStatement;
 
 /*
  * To change this license header, choose License Headers in Project Properties.
@@ -17,27 +18,21 @@ public class LogDAO
     {
         try 
         {
-            /*
-                    private Timestamp date;
-                    private String name;
-                    private String user;//pode ser null
-                    private String context;
-                    private String component;
-                    private String eventName;
-                    private String description;
-                    private String origin;//pode ser null
-                    private String IP;
-            */
+//            System.out.println( log.toString() );
+            PreparedStatement ps = Database.getInstance().getConnection().prepareStatement( "insert into log_moodle values( ?, ?, ?, ?, ?, ?, ?, ?, ? )" );
             
-            Statement st = Database.getInstance().getConnection().createStatement();
+            int i = 1;
+            ps.setTimestamp( i++, log.getDate() );
+            ps.setString( i++, log.getName() );
+            ps.setString( i++, log.getUser() );
+            ps.setString( i++, log.getContext() );
+            ps.setString( i++, log.getComponent() );
+            ps.setString( i++, log.getEventName() );
+            ps.setString( i++, log.getDescription() );
+            ps.setString( i++, log.getOrigin() );
+            ps.setString( i++, log.getIP() );
             
-            String sql = "insert into log_moodle values( " + log.getDate()           + ",  '" + log.getName()      + "', '" + 
-                                                             log.getUser()           + "', '" + log.getContext()   + "', '" + 
-                                                             log.getComponent()      + "', '" + log.getEventName() + "', '" + 
-                                                             log.getDescription()    + "',' " + log.getOrigin()    + "', '" + 
-                                                             log.getIP()             + "' "   + " )";
-            
-            st.executeQuery(sql);
+            ps.execute();
         } 
         
         catch ( Exception e ) 
